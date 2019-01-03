@@ -1,0 +1,28 @@
+#!groovy
+
+pipeline {
+
+  agent any
+
+  environment {
+    DATAHOST = credentials('node1_ip_address')
+
+    DATAHOST_PORT = credentials('ansible_port')
+
+    DATAHOST_DATA_PATH = "/home/ansible/sshkey/tomonori"
+
+    LOCALHOST_DATA_PATH = "/home/ansible/sshkey"
+  }
+
+  stages {
+    stage('Retrieve SSH Key file from the development server') {
+      steps {
+        sh "rm -rf ${env.LOCALHOST_DATA_PATH}"
+
+        sh "mkdir -p ${env.LOCALHOST_DATA_PATH}"
+
+        sh "scp -P ${env.DATAHOST_PORT} -r ansible@${env.DATAHOST}:${env.DATAHOST_DATA_PATH} ${env.LOCALHOST_DATA_PATH}"
+      }
+    }
+  }
+}
